@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import json, glob, os
+import json, glob, os, time
 
 
 def load_json(filename):
@@ -25,17 +25,22 @@ def add_two_trackers(tracker1, tracker2):
 def add_all_trackers():
     output_dir = os.path.dirname(os.getcwd()) + '/output/'
     full_data = {}
+    timestamps = []
     first = True
 
     for file in glob.glob(output_dir + '*.json'):
         data = load_json(file)
+        filename = file.split('/').pop()
+        timestamps.append(filename.split('_').pop(0))
 
         if first:
             full_data = data
             first = False
         else:
             full_data = add_two_trackers(data, full_data)
-    return normalize_counts(full_data)
+
+    timestamps.sort()
+    return normalize_counts(full_data), timestamps[0], timestamps[len(timestamps)-1]
 
 
 def normalize_counts(data):
@@ -50,8 +55,8 @@ def normalize_counts(data):
     return data
 
 
-def plot_all_trackers(start_date='?', end_date='?', grid=False):
-    full_data = add_all_trackers()
+def plot_all_trackers(pause=0, grid=False):
+    full_data, start_date, end_date = add_all_trackers()
     lines = [line.replace(' ', '\n') for line in full_data]
     statuses = [status for status in next(iter(full_data.values()))]
 
@@ -74,7 +79,11 @@ def plot_all_trackers(start_date='?', end_date='?', grid=False):
     p5 = ax.bar(ind+width*2, status_counts[4], width)
     p6 = ax.bar(ind+width*3, status_counts[5], width)
 
-    ax.set_title('Tube Service between {0} and {1}'.format(start_date, end_date))
+    if start_date==end_date:
+        ax.set_title('London TFL Service on {0}'.format(start_date))
+    else:
+        ax.set_title('London TFL Service on {0} and {1}'.format(start_date, end_date))
+
     ax.set_xticks(ind + width / 2)
     ax.set_xticklabels(lines)
 
@@ -85,4 +94,8 @@ def plot_all_trackers(start_date='?', end_date='?', grid=False):
     if grid:
         plt.grid()
 
+    plt.ion()
     plt.show()
+    plt.pause(0.001)
+    time.sleep(pause)
+    plt.close(fig)

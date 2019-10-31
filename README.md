@@ -1,6 +1,6 @@
 ## TFL Monitor
 
-Monitors the status of all TFL underground and overground lines for a given time period and logging interval. Plots findings on bar plot.
+Monitors the status of all TFL underground and overground lines for a given time period and logging interval. Plots and updates figure every hour.
 
 Developed and tested on Ubuntu 18.04.
 Made with:
