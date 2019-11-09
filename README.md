@@ -22,4 +22,4 @@ Requirements:
     
     `python3 main.py -d 7 -i 0.5 -p day` - run for 7 days, acquire data every 0.5 hour, plot results by day
     
-    `python3 main.py -d 1 -i 2 -p line` - run for 1 day, acquire data every 2 houra, plot results by line
+    `python3 main.py -d 1 -i 2 -p line` - run for 1 day, acquire data every 2 hours, plot results by line
