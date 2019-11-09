@@ -14,9 +14,10 @@ def get_service(soup, service):
 
     res = {}
     for entry in info:
-        line = entry[0].replace('\n', '').strip()
-        status = entry[1].replace('\n', '').strip()
-        res[line] = status
+        if len(entry)>1:
+            line = entry[0].replace('\n', '').strip()
+            status = entry[1].replace('\n', '').strip()
+            res[line] = status
 
     return res
 
