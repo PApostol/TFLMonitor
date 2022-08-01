@@ -1,8 +1,16 @@
+"""
+File for scraping information from the web
+"""
+import json
+import logging
+from typing import Dict, Optional
+
+import requests
 from bs4 import BeautifulSoup
-import requests, json
 
+MAIN_URL = 'https://tfl.gov.uk/tube-dlr-overground/status/'
 
-def get_service(soup, service):
+def get_service(soup: BeautifulSoup, service: str) -> Optional[Dict[str, str]]:
     if service == 'good':
         temp = soup.find_all('div', class_='rainbow-list-link')
         info = [tag.text.split('\n\n\n\n') for tag in temp]
@@ -12,9 +20,9 @@ def get_service(soup, service):
     else:
         return
 
-    res = {}
+    res: Dict[str, str] = {}
     for entry in info:
-        if len(entry)>1:
+        if len(entry) > 1:
             line = entry[0].replace('\n', '').strip()
             status = entry[1].replace('\n', '').strip()
             res[line] = status
@@ -22,8 +30,8 @@ def get_service(soup, service):
     return res
 
 
-def get_tube_status():
-    r = requests.get(r'https://tfl.gov.uk/tube-dlr-overground/status/')
+def get_tube_status() -> Dict[str, str]:
+    r = requests.get(MAIN_URL)
     soup = BeautifulSoup(r.content, 'html.parser')
 
     good_service = get_service(soup, 'good')
@@ -32,24 +40,27 @@ def get_tube_status():
     return {**good_service, **bad_service}
 
 
-def get_counter():
-    return {'Good service': 0,
-            'Minor delays': 0,
-            'Severe delays': 0,
-            'Part suspended': 0,
-            'Part closure': 0,
-            'Planned closure': 0}
+def get_counter() -> Dict[str, int]:
+    return {
+        'Good service': 0,
+        'Minor delays': 0,
+        'Severe delays': 0,
+        'Part suspended': 0,
+        'Part closure': 0,
+        'Planned closure': 0,
+        'Special service': 0,
+    }
 
 
-def analyze_status(tracker, tube_status):
+def analyze_status(tracker: Dict[str, Dict[str, int]], tube_status: Dict[str, str]) -> None:
     for line, status in tube_status.items():
         counter = get_counter()
         for stat in counter:
             if stat in status:
-                tracker[line][stat]+=1
+                tracker[line][stat] += 1
 
 
-def update_tracker(tracker):
+def update_tracker(tracker: Dict[str, Dict[str, int]]) -> None:
     tube_status = get_tube_status()
 
     for line in tube_status:
@@ -59,15 +70,14 @@ def update_tracker(tracker):
     analyze_status(tracker, tube_status)
 
 
-def print_tracker(tracker):
+def print_tracker(tracker: Dict[str, Dict[str, int]]) -> None:
     for line, info in tracker.items():
-        print(line)
+        logging.info(line)
         for status, counts in info.items():
-            print(status + ': ' + str(counts))
-        print('\n')
+            logging.info(f'{status}: {counts}')
+        logging.info('\n')
 
 
-def save_tracker(tracker, filename):
-    with open(filename+'.json', 'w') as f:
+def save_tracker(tracker: Dict[str, Dict[str, int]], filename: str) -> None:
+    with open(f'{filename}.json', 'w') as f:
         json.dump(tracker, f)
-
