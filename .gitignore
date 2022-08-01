@@ -43,5 +43,5 @@ Thumbs.db
 
 # Others #
 ######################
-.output/
+output/
 .idea/
