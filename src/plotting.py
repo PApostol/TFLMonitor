@@ -121,7 +121,7 @@ def plot_all_trackers(source_path: str, option: str, pause: int = 0, grid: bool 
     elif 'day' in option:
         full_data, start_date, end_date = add_all_trackers_by_day(source_path)
     else:
-        logging.info(f'Plotting option "{option}" not recognized!')
+        logging.error(f'Plotting option "{option}" not recognized!')
         sys.exit(1)
 
     lines = [line.replace(' ', '\n') for line in full_data]
